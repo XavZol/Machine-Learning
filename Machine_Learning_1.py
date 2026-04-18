@@ -1,31 +1,42 @@
-import pandas as pd 
-import matplotlib.pyplot as plt 
-from sklearn.linear_model import LogisticRegression
+import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier, plot_tree
-import seaborn as sns
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.ensemble import RandomForestClassifier
 
-df = sns.load_dataset("iris")
+ruta = r"C:\Users\javie\OneDrive\Desktop\Excel_DB\tarjetas_credito.csv"
+
+df = pd.read_csv(ruta)
 print(df.head())
 
-sp = df.species.unique()
-print(sp)
+escala = MinMaxScaler(feature_range=(0, 1))
+normado = escala.fit_transform(df)
+df_normado = pd.DataFrame(data=normado, columns=df.columns)
+print(df_normado.head())
 
-X = df.drop("species", axis=1)
-print(X)
+# VAriables Dependientes e Independientes
+X = df_normado.drop("Clase", axis=1)
+y = df_normado["Clase"]
+X_entrena, X_prueba, y_entrena, y_prueba = train_test_split(X, y, train_size=0.7, random_state=42)
+forest = RandomForestClassifier()
+forest.fit(X_entrena, y_entrena)
+forest.score(X_prueba, y_prueba)
 
-le = LabelEncoder()
-especies= le.fit_transform(df["species"])
-print(especies)
+nuevo_registro = pd.DataFrame({
+    'Duracion': [0.000006], 'V1': [0.452345], 'V2': [0.564789], 'V3': [0.123456], 'V4': [0.654321],
+    'V5': [0.987654], 'V6': [0.345678], 'V7': [0.234567], 'V8': [0.876543], 'V9': [0.456789],
+    'V10': [0.567890], 'V11': [0.678901], 'V12': [0.789012], 'V13': [0.890123], 'V14': [0.901234],
+    'V15': [0.012345], 'V16': [0.543210], 'V17': [0.432109], 'V18': [0.321098], 'V19': [0.210987],
+    'V20': [0.109876], 'V21': [0.098765], 'V22': [0.887654], 'V23': [0.776543], 'V24': [0.665432],
+    'V25': [0.554321],     'V26': [0.443210], 'V27': [0.332109], 'V28': [0.221098], 'Monto': [0.110987]
+}, index=[0])
 
-y = especies
-print(y)
+clase_predicha = forest.predict(nuevo_registro)
+print(clase_predicha)
 
-X_entrena, X_prueba, y_entrena, y_prueba = train_test_split(X, y, train_size=0.8, random_state=42)
-arbol = DecisionTreeClassifier()
-arbol.fit(X_entrena, y_entrena)
-plt.figure(figsize=(10,10))
-plot_tree(decision_tree=arbol, class_names=["setosa", "versicolor", "virginica"], feature_names=df.columns.to_list(), filled=True)
-plt.show()
+probabilidades = forest.predict_proba(nuevo_registro)
+
+print("Clase predicha: ", clase_predicha[0])
+print("Probabilidades de legitimidad: ", probabilidades[0][0])
+print("Probabilidades de fraude: ", probabilidades[0][1])
+
