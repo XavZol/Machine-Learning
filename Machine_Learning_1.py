@@ -2,35 +2,29 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+import seaborn as sns
 
-ruta = r"C:\Users\javie\OneDrive\Desktop\Excel_DB\datos_seguro.csv"
-df = pd.read_csv(ruta)
+df = sns.load_dataset("iris")
 print(df.head())
 
-plt.scatter(df.edad, 
-            df.compra)
-plt.show()
+sp = df.species.unique()
+print(sp)
 
-X_entrena, X_prueba, y_entrena, y_prueba = train_test_split(df[["edad"]], df["compra"], train_size=0.9) 
-print(X_entrena)
-print(X_prueba)
+X = df.drop("species", axis=1)
+print(X)
 
-modelo = LogisticRegression()
-modelo.fit(X_entrena, y_entrena)
-print(modelo.score(X_entrena, y_entrena))
+le = LabelEncoder()
+especies= le.fit_transform(df["species"])
+print(especies)
 
-datos_nuevos = pd.DataFrame({"edad":[25, 35, 45, 55]})
-print(datos_nuevos)
+y = especies
+print(y)
 
-probabilidades = modelo.predict_proba(datos_nuevos)
-print(probabilidades)
-
-prob_compra = probabilidades[:, 1]
-print(prob_compra)
-
-plt.scatter(df.edad, 
-            df.compra)
-plt.scatter(datos_nuevos["edad"],
-            prob_compra,
-            color="red")
+X_entrena, X_prueba, y_entrena, y_prueba = train_test_split(X, y, train_size=0.8, random_state=42)
+arbol = DecisionTreeClassifier()
+arbol.fit(X_entrena, y_entrena)
+plot_tree(decision_tree=arbol)
 plt.show()
