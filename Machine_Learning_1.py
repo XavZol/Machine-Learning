@@ -1,27 +1,38 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.datasets import load_iris
-from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+# Singular Value Descomposition (SVD)
 
-# Gráfico de disperción lineal
+A = np.array([[1, 2],
+            [3, 4], 
+            [5, 6]])
+
+U, sigma, VT = np.linalg.svd(A)
+
+print("U =",U)
+print("sigma =",sigma)
+print("VT =", VT)
 
 iris = load_iris()
 X = iris.data
-y = iris.target
-
-print(y)
-
 X_centrado = X - np.mean(X, axis=0)
-pca = PCA(n_components=2)
 
-X_pca = pca.fit_transform(X_centrado)
+# Matrices 
+U, sigma, VT = np.linalg.svd(X_centrado)
+
+# Reducir la Dimensionalidad de un conjunto de datos
+k = 2
+X_transformado = U[:, :k] * sigma[:k]
 
 especies = ["setosa", "versicolor", "virginica"]
+
 plt.figure(figsize=(8, 6))
-for i in range(0, 3):
-    plt.scatter(X_pca[y == i, 0], X_pca[y == i, 1], label=especies[i])
-plt.xlabel('Primer componente principal')
-plt.ylabel('Segundo componente principal')
-plt.legend()
-plt.title('PCA del conjunto Iris')  
+for i in range(3):
+    plt.scatter(X_transformado[iris.target == i, 0], 
+                X_transformado[iris.target == i, 1], 
+                label=especies[i])
+    plt.xlabel('Componente principal 1')
+    plt.ylabel('Componente principal 2')
+    plt.legend()
+    plt.title('Dataset iris transformado por SVD');
 plt.show()
