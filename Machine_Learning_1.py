@@ -1,45 +1,27 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.cluster import KMeans
+from sklearn.datasets import load_iris
+from sklearn.decomposition import PCA
 
-np.random.seed(42)
-data = np.random.rand(100, 2)
-print(data)
+# Gráfico de disperción lineal
 
-kmeans1 = KMeans(n_clusters=5, random_state=42)
-kmeans1.fit(data)
-centroides1 = kmeans1.cluster_centers_
-print(centroides1)
+iris = load_iris()
+X = iris.data
+y = iris.target
 
-etiquetas1 = kmeans1.labels_
-print(etiquetas1)
+print(y)
 
-plt.figure(figsize=(10, 6))
-plt.scatter(data[:, 0], data[:, 1], c=etiquetas1, cmap='viridis', marker='o')
-plt.scatter(centroides1[:, 0], centroides1[:, 1], c='red', marker='x', s=200, label='Centroides')
-plt.title('Visualización de K-Means Clustering')
+X_centrado = X - np.mean(X, axis=0)
+pca = PCA(n_components=2)
+
+X_pca = pca.fit_transform(X_centrado)
+
+especies = ["setosa", "versicolor", "virginica"]
+plt.figure(figsize=(8, 6))
+for i in range(0, 3):
+    plt.scatter(X_pca[y == i, 0], X_pca[y == i, 1], label=especies[i])
+plt.xlabel('Primer componente principal')
+plt.ylabel('Segundo componente principal')
 plt.legend()
-plt.show()
-
-np.random.seed(4)
-data1 = np.random.rand(100, 2)
-
-pinguinos = sns.load_dataset('penguins')
-pinguinos.dropna(inplace=True)
-data = pinguinos[['bill_length_mm', 'bill_depth_mm']]
-
-kmeans2 = KMeans(n_clusters=3, random_state=42)
-kmeans2.fit(data)
-
-centroides2 = kmeans2.cluster_centers_
-etiquetas2 = kmeans2.labels_
-
-plt.figure(figsize=(12, 7))
-sns.scatterplot(data=pinguinos, x='bill_length_mm', y='bill_depth_mm', hue=etiquetas2, palette='viridis')
-plt.scatter(centroides2[:, 0], centroides2[:, 1], c='red', s=100, marker='x', label='Centroides')
-plt.title('K-Means Clustering en el conjunto de datos Pinguinos')
-plt.legend()    
-plt.xlabel('Longitud del Pico (mm)')
-plt.ylabel('Profundidad del Pico (mm)')
+plt.title('PCA del conjunto Iris')  
 plt.show()
